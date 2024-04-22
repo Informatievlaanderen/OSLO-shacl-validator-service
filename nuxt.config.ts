@@ -4,7 +4,14 @@ import { fileURLToPath } from 'url'
 export default defineNuxtConfig({
   // https://nuxt.com/docs/getting-started/deployment#static-hosting
   ssr: true,
+  devtools: { enabled: true },
+  runtimeConfig: {
+    // private runtime env variables. Think of api keys: https://nuxt.com/docs/guide/going-further/runtime-config#environment-variables
+    // This is needed to pass the .env variables to the build process
+    VALIDATOR_API_URL: import.meta.env.VITE_VALIDATOR_API_URL,
+  },
   app: {
+    baseURL: import.meta.env.VITE_ROOT_PATH,
     head: {
       title: 'OSLO-frontend-template',
       htmlAttrs: {
@@ -70,11 +77,4 @@ export default defineNuxtConfig({
   plugins: [
     { src: '~/plugins/webcomponents.js', mode: 'client' },
   ],
-  // Modules: https://nuxt.com/docs/api/configuration/nuxt-config#modules-1
-  modules: [
-    // https://github.com/davestewart/nuxt-content-assets
-    'nuxt-content-assets', // make sure to add before content!
-    // https://content.nuxtjs.org/
-    '@nuxt/content',
-  ]
 })

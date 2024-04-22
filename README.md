@@ -1,4 +1,4 @@
-# OSLO-frontend-template
+# OSLO-shacl-validator-service
 
 This repository should be used as the starting point for every frontend-related project that gets build for the government of Flanders. This project is built using [Nuxt 3.x](https://nuxt.com/) and [Vue 3.x](https://vuejs.org/). Ever since these newer versions of these libraries got released, the government of Flanders also released a third version of their webcomponents which works with these newer versions. The needed configuration has already been set up, so that you can start using these components immediately. The libraries are
 

@@ -9,14 +9,10 @@
       alt: 'Content Header',
     }"
   >
-    <div v-if="title" class="vl-content-header__logo-wrapper">
-      <vl-content-header-entity :title="title" />
-    </div>
     <vl-content-header-title
       v-if="subtitle"
       :title="subtitle"
       tag-name="h1"
-      :href="href"
       :context="context"
     />
   </vl-content-header>

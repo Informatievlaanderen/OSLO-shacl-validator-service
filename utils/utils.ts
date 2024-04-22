@@ -1,5 +1,10 @@
-import { FILE_READ_ERROR, MIME_TYPES } from "~/constants/constants";
+import { FILE_READ_ERROR, MIME_TYPES, NamedNode } from "~/constants/constants";
 import type { CustomFile } from "~/types/customFile";
+import type * as RDF from '@rdfjs/types';
+import { DataFactory } from 'rdf-data-factory'
+import type { SHACLValidationResult } from "~/types/schaclValidationResult";
+
+const df: DataFactory = new DataFactory()
 
 export const convertReadableStreamToString = async (stream: ReadableStream): Promise<string> => {
   const reader = stream.getReader();
@@ -19,19 +24,19 @@ export const convertReadableStreamToString = async (stream: ReadableStream): Pro
   return result;
 };
 
-export const readFileAsBase64 = (file: CustomFile, selectedAP: string): Promise<string> => {
+export const readFileAsBase64 = (file: CustomFile, selectedAP: string): Promise<object> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       const data = e?.target?.result
       if (typeof data === 'string') {
         const base64 = data.substring(data.indexOf(',') + 1)
-        resolve(JSON.stringify({
+        resolve({
           contentSyntax: "text/turtle",
           contentToValidate: base64,
           embeddingMethod: 'BASE64',
           validationType: selectedAP,
-        }))
+        })
       } else {
         reject(new Error(FILE_READ_ERROR))
       }
@@ -46,21 +51,20 @@ export const readFileAsBase64 = (file: CustomFile, selectedAP: string): Promise<
   })
 }
 
-export const validateURL = (content: string, selectedAP: string, reportSyntax?: string): string => {
-  return JSON.stringify({
+export const validateURL = (content: string, selectedAP: string): object => {
+  return {
     contentToValidate: content,
     validationType: selectedAP,
-    reportSyntax: reportSyntax ?? MIME_TYPES.RDF_XML,
-  })
+    reportSyntax: MIME_TYPES.RDF_XML,
+  }
 }
 
-export const validateFile = (base64: string, selectedAP: string, reportSyntax?: string): string => {
-  return JSON.stringify({
+export const validateFile = (base64: string, selectedAP: string): object => {
+  return {
     contentSyntax: "text/turtle",
     contentToValidate: base64,
     embeddingMethod: 'BASE64',
     validationType: selectedAP,
-    reportSyntax: reportSyntax || MIME_TYPES.RDF_XML,
-  })
+    reportSyntax: MIME_TYPES.RDF_XML,
+  }
 }
-

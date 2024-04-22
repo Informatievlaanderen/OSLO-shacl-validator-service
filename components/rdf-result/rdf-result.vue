@@ -4,7 +4,7 @@
       <vl-grid mod-stacked>
         <vl-column v-for="result in resultObject">
           <vl-info-tile
-            v-if="result.type === 'http://www.w3.org/ns/shacl#ValidationReport'"
+            v-if="result.type === VALIDATION_REPORT"
             tag-name="div"
             class="overviewItem"
             title="ValidationReport"
@@ -41,7 +41,7 @@
             <option :value="MIME_TYPES.N_TRIPLES" selected>N-Triples</option>
           </vl-select>
         </vl-column>
-        <vl-column width="8">
+        <vl-column width="8" class="flexEnd">
           <vl-link :download="nameDownloadFile" :href="downloadLink">
             <vl-icon icon="file-download" />
             Download
@@ -61,16 +61,19 @@
 
 <script setup lang="ts">
 import { RdfXmlParser } from 'rdfxml-streaming-parser'
-import type * as RDF from '@rdfjs/types'
 import { DataFactory } from 'rdf-data-factory'
-import { FILE_EXTENSIONS, MIME_TYPES, NamedNode } from '~/constants/constants'
+import { FILE_EXTENSIONS, MIME_TYPES, VALIDATION_REPORT, NamedNode } from '~/constants/constants'
 import type { SHACLValidationResult } from '~/types/schaclValidationResult'
 import { Readable } from 'readable-stream'
+import type * as RDF from '@rdfjs/types'
 
 const props = defineProps<{
   SHACL: string
   selectedAP: string
+  isFile: boolean
+  requestBody: object
 }>()
+
 
 const df: DataFactory = new DataFactory()
 
@@ -89,12 +92,14 @@ const parseResult = (rdfXML: string) => {
     const myParser = new RdfXmlParser()
 
     stream
-      .pipe(myParser)
-      .on('data', processQuad)
-      .on('error', console.error)
-      .on('end', () => {
-        console.log('All triples were parsed!')
-      })
+    .pipe(myParser)
+    .on('data', processQuad)
+    .on('error', console.error)
+    .on('end', () => {
+      console.log('All triples were parsed!')
+      // call change format to display the result
+      changeFormat()
+    })
   } catch (err) {
     console.log(err)
   }
@@ -126,22 +131,18 @@ const processQuad = (quad: RDF.Quad) => {
 }
 
 const changeFormat = async () => {
-  console.log('lol')
-  const requestBody = validateURL(
-    'https://data.vlaanderen.be/doc/applicatieprofiel/PersoonBasis/ontwerpstandaard/2023-06-01/shacl/persoon-basis-SHACL.ttl',
-    props.selectedAP,
-    selectedFormat.value,
-  )
-
-  console.log(requestBody)
-
   try {
+    const requestBody: object = props.requestBody
+
     const response = await fetch(import.meta.env.VITE_VALIDATOR_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': MIME_TYPES.APPLICATION_JSON,
       },
-      body: requestBody,
+      body: JSON.stringify({
+        ...requestBody,
+        reportSyntax: selectedFormat.value,
+      }),
     })
 
     const decoder = new TextDecoder('utf-8')
@@ -151,6 +152,7 @@ const changeFormat = async () => {
     displayedResult.value = decoder.decode(value)
     updateDownloadLinkAndName(decoder.decode(value))
   } catch (err) {
+    // TODO ERROR HANDLING
     console.log(err)
   }
 }
@@ -165,9 +167,17 @@ const updateDownloadLinkAndName = (value: string) => {
 }
 
 watch(selectedFormat, changeFormat)
-
+watch(
+  () => props.SHACL,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      // reset resultObject to avoid duplicates and multiple entries
+      resultObject.value = {}
+      parseResult(newVal)
+    }
+  },
+)
 onMounted(() => {
-  console.log(props.SHACL, props?.selectedAP)
   if (props.SHACL) {
     parseResult(props.SHACL)
   }

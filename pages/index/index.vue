@@ -56,17 +56,22 @@
           </vl-alert>
         </vl-column>
         <vl-column width="12" width-s="12">
-          <vl-button
+            <vl-button
             @click="validate"
             mod-block
             mod-wide
             :mod-disabled="isModDisabled"
-          >
+            >
             Valideer
           </vl-button>
-        </vl-column>
+    </vl-column>
         <vl-column v-if="SHACL">
-          <rdf-result :SHACL="SHACL" :selectedAP="selectedAP" />
+          <rdf-result
+            :SHACL="SHACL"
+            :selectedAP="selectedAP"
+            :isFile="tabsRef?.activeTabIndex === 0"
+            :requestBody="requestBody"
+          />
         </vl-column>
       </vl-grid>
     </vl-region>
@@ -86,6 +91,7 @@ import { validateURL } from '~/utils/utils'
 
 const error = ref(false)
 const errorMessage = ref('')
+const requestBody = ref()
 const selectedAP = ref('persoon_basis')
 const shaclFile = ref<CustomFile | null>(null)
 const shaclURL = ref<string>(
@@ -101,9 +107,13 @@ const onAdd = (file: CustomFile) => {
 
 const onRemove = () => {
   // reset errors
-  errorMessage.value = ''
   shaclFile.value = null
+  resetErrors()
+}
+
+const resetErrors = () => {
   error.value = false
+  errorMessage.value = ''
 }
 
 const onError = () => {
@@ -116,11 +126,11 @@ const isModDisabled = computed(() => {
   return !isFileValid || error.value || !selectedAP.value
 })
 
-const validateFile = async (): Promise<string> => {
+const validateFile = async (): Promise<object> => {
   if (shaclFile.value?.status === 'error' || !shaclFile?.value) {
     error.value = true
     errorMessage.value = UPLOAD_ERROR_MESSAGE
-    return ''
+    return {}
   }
 
   return await readFileAsBase64(shaclFile?.value, selectedAP.value)
@@ -130,9 +140,9 @@ const validate = async () => {
   const isFileTabActive = tabsRef.value?.activeTabIndex === 0
   const validateFunction = isFileTabActive
     ? validateFile
-    : () => validateURL(shaclURL.value, selectedAP?.value)
+    : async () => validateURL(shaclURL.value, selectedAP?.value)
   try {
-    const requestBody: string = await validateFunction()
+    const body: object = await validateFunction()
 
     const result: Response = await fetch(
       import.meta.env.VITE_VALIDATOR_API_URL,
@@ -141,7 +151,7 @@ const validate = async () => {
         headers: {
           'Content-Type': MIME_TYPES.APPLICATION_JSON,
         },
-        body: requestBody,
+        body: JSON.stringify(body),
       },
     )
 
@@ -155,6 +165,12 @@ const validate = async () => {
     if (!result.ok) {
       throw new Error(data ?? API_ERROR_MESSAGE)
     }
+     // Reset any existing errors upon successful validation
+     resetErrors()
+    // Store the request body to pass down to the rdf-result component
+    requestBody.value = body
+    // Store the SHACL data either as base64 or as a URL
+    console.log("storing data")
     SHACL.value = data
   } catch (err: unknown) {
     errorMessage.value = err instanceof Error ? err.message : API_ERROR_MESSAGE

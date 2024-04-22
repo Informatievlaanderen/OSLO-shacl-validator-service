@@ -38,3 +38,4 @@ export enum NamedNode {
   ResultMessage = 'http://www.w3.org/ns/shacl#resultMessage',
 }
 
+export const VALIDATION_REPORT = 'http://www.w3.org/ns/shacl#ValidationReport'

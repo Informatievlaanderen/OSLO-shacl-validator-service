@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   app: {
     baseURL: import.meta.env.VITE_ROOT_PATH,
     head: {
-      title: 'OSLO-frontend-template',
+      title: 'OSLO-SHACL-Validator',
       htmlAttrs: {
         lang: 'nl',
       },
@@ -55,17 +55,9 @@ export default defineNuxtConfig({
       ],
     },
   },
-  // needed for nuxt content assets that keeps hanging on build: https://github.com/davestewart/nuxt-content-assets/issues/49#issuecomment-1812810278
-  hooks: {
-    close: (nuxt) => {
-      if (!nuxt.options._prepare)
-        process.exit()
-    }
-  },
   // Alias declaration for easier access to components directory
   alias: {
     "@components": fileURLToPath(new URL('./components', import.meta.url)),
-    "@content": fileURLToPath(new URL('./content', import.meta.url)),
     "@types": fileURLToPath(new URL('./types', import.meta.url)),
   },
   // Global CSS: https://nuxt.com/docs/api/configuration/nuxt-config#css

@@ -1,8 +1,9 @@
 <template>
   <vl-tabs :hash-change="false">
-    <vl-tab id="pretty" label="Pretty">
+    <vl-tab vl-tab id="pretty" label="Pretty">
       <vl-grid mod-stacked>
-        <vl-column v-for="result in resultObject">
+        <GenericError v-if="errorMessage" :errorMessage="errorMessage" />
+        <vl-column v-else v-for="result in resultObject">
           <vl-info-tile
             v-if="result.type === VALIDATION_REPORT"
             tag-name="div"
@@ -22,13 +23,14 @@
             :title="result.message"
             :subtitle="result.type"
           >
-            Location: <strong>{{ result.resultPath }}</strong>
+            Location: <strong>{{ result?.resultPath }}</strong>
           </vl-info-tile>
         </vl-column>
       </vl-grid>
     </vl-tab>
     <vl-tab id="raw" label="Raw">
-      <vl-grid mod-stacked>
+      <GenericError v-if="errorMessage" :errorMessage="errorMessage" />
+      <vl-grid v-else mod-stacked>
         <vl-column width="4">
           <vl-select
             id="select"
@@ -62,7 +64,14 @@
 <script setup lang="ts">
 import { RdfXmlParser } from 'rdfxml-streaming-parser'
 import { DataFactory } from 'rdf-data-factory'
-import { FILE_EXTENSIONS, MIME_TYPES, VALIDATION_REPORT, NamedNode } from '~/constants/constants'
+import GenericError from './generic-error.vue'
+import {
+  FILE_EXTENSIONS,
+  MIME_TYPES,
+  VALIDATION_REPORT,
+  NamedNode,
+  VALIDATION_ERROR,
+} from '~/constants/constants'
 import type { SHACLValidationResult } from '~/types/schaclValidationResult'
 import { Readable } from 'readable-stream'
 import type * as RDF from '@rdfjs/types'
@@ -74,7 +83,6 @@ const props = defineProps<{
   requestBody: object
 }>()
 
-
 const df: DataFactory = new DataFactory()
 
 const resultObject = ref<SHACLValidationResult>({})
@@ -82,6 +90,7 @@ const selectedFormat = ref<string>(MIME_TYPES.RDF_XML)
 const displayedResult = ref<string>('')
 const downloadLink = ref<string>('')
 const nameDownloadFile = ref<string>('')
+const errorMessage = ref<string>('')
 
 const parseResult = (rdfXML: string) => {
   try {
@@ -92,16 +101,18 @@ const parseResult = (rdfXML: string) => {
     const myParser = new RdfXmlParser()
 
     stream
-    .pipe(myParser)
-    .on('data', processQuad)
-    .on('error', console.error)
-    .on('end', () => {
-      console.log('All triples were parsed!')
-      // call change format to display the result
-      changeFormat()
-    })
+      .pipe(myParser)
+      .on('data', processQuad)
+      .on('error', console.error)
+      .on('end', () => {
+        // reset error message since succesfully parsed
+        errorMessage.value = ''
+        // call change format to display the result
+        changeFormat()
+      })
   } catch (err) {
     console.log(err)
+    errorMessage.value = err instanceof Error ? err.message : VALIDATION_ERROR
   }
 }
 const processQuad = (quad: RDF.Quad) => {
@@ -152,8 +163,8 @@ const changeFormat = async () => {
     displayedResult.value = decoder.decode(value)
     updateDownloadLinkAndName(decoder.decode(value))
   } catch (err) {
-    // TODO ERROR HANDLING
     console.log(err)
+    errorMessage.value = err instanceof Error ? err.message : VALIDATION_ERROR
   }
 }
 

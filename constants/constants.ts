@@ -1,5 +1,6 @@
 export const UPLOAD_ERROR_MESSAGE: string = "Er liep iets fout bij het opladen van het bestand. Probeer het later opnieuw.";
 export const API_ERROR_MESSAGE: string = "Er liep iets fout bij het ophalen van de data. Probeer het later opnieuw.";
+export const VALIDATION_ERROR: string = "Er liep iets fout bij het valideren van de data. Probeer het later opnieuw";
 export const FILE_READ_ERROR: string = "File read error"
 export const APPLICATION_PROFILES: string[] = [
   'Adresregister',

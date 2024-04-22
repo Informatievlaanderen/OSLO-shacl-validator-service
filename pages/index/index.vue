@@ -56,15 +56,15 @@
           </vl-alert>
         </vl-column>
         <vl-column width="12" width-s="12">
-            <vl-button
+          <vl-button
             @click="validate"
             mod-block
             mod-wide
             :mod-disabled="isModDisabled"
-            >
+          >
             Valideer
           </vl-button>
-    </vl-column>
+        </vl-column>
         <vl-column v-if="SHACL">
           <rdf-result
             :SHACL="SHACL"
@@ -72,6 +72,9 @@
             :isFile="tabsRef?.activeTabIndex === 0"
             :requestBody="requestBody"
           />
+        </vl-column>
+        <vl-column>
+          <isa-footer />
         </vl-column>
       </vl-grid>
     </vl-region>
@@ -92,11 +95,9 @@ import { validateURL } from '~/utils/utils'
 const error = ref(false)
 const errorMessage = ref('')
 const requestBody = ref()
-const selectedAP = ref('persoon_basis')
+const selectedAP = ref('')
 const shaclFile = ref<CustomFile | null>(null)
-const shaclURL = ref<string>(
-  'https://data.vlaanderen.be/doc/applicatieprofiel/PersoonBasis/ontwerpstandaard/2023-06-01/shacl/persoon-basis-SHACL.ttl',
-)
+const shaclURL = ref<string>('')
 const tabsRef = ref()
 const SHACL = ref<string | null>(null)
 
@@ -156,7 +157,6 @@ const validate = async () => {
     )
 
     if (!result?.body) {
-      console.log(API_ERROR_MESSAGE)
       throw new Error(API_ERROR_MESSAGE)
     }
 
@@ -165,12 +165,11 @@ const validate = async () => {
     if (!result.ok) {
       throw new Error(data ?? API_ERROR_MESSAGE)
     }
-     // Reset any existing errors upon successful validation
-     resetErrors()
+    // Reset any existing errors upon successful validation
+    resetErrors()
     // Store the request body to pass down to the rdf-result component
     requestBody.value = body
     // Store the SHACL data either as base64 or as a URL
-    console.log("storing data")
     SHACL.value = data
   } catch (err: unknown) {
     errorMessage.value = err instanceof Error ? err.message : API_ERROR_MESSAGE

@@ -38,7 +38,7 @@
         <vl-column width="12" width-s="12">
           <vl-typography>
             <h4>Applicatieprofiel</h4>
-            <vl-select v-model="selectedAP" mod-block>
+            <vl-select v-model="selectedAP" mod-block placeholderText="Kies een applicatieprofiel...">
               <option
                 v-for="ap in APPLICATION_PROFILES"
                 :value="ap.toLowerCase()"

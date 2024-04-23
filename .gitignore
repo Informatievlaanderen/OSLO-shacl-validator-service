@@ -92,3 +92,6 @@ sw.*
 
 # Generated folder of static website
 .output/
+
+# Published name of docker hub image
+PUBLISHED

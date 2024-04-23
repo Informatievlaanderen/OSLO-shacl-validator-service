@@ -1,0 +1,14 @@
+ARG VERSION
+FROM informatievlaanderen/oslo-shacl-validator-service-base:${VERSION} as BUILD
+
+WORKDIR /app
+
+ADD . /app
+
+RUN npm run build
+
+FROM node:20-alpine
+WORKDIR /app
+EXPOSE 3000
+COPY --from=BUILD /app/.output /app
+CMD ["node", "./server/index.mjs"]

@@ -2,6 +2,20 @@
 
 This project contains a frontend and a backend part. The frontend is built using Nuxt 3.x and Vue 3.x, while the backend is built using Express.js. The frontend is used to validate SHACL files against a given RDF file. The backend is used to validate the SHACL files against the RDF file.
 
+## BACKEND
+
+### `Dockerfile`
+
+This file is used to build a Docker image for the backend service. It contains instructions on how to set up the environment and which commands to run.
+
+### `Makefile`
+
+This file contains a set of tasks for building and running the backend service. It includes tasks for building the Docker image, running the Docker container, and cleaning up the Docker environment.
+
+### `resources/applicatieprofielen/`
+
+This directory contains application profiles. These are used in the validation of SHACL files against the RDF file. The `config.properties` file contains the configuration for the actual application profiles and should be extended with new application profiles if need be.
+
 ## FRONTEND
 
 This project is built using [Nuxt 3.x](https://nuxt.com/) and [Vue 3.x](https://vuejs.org/). Ever since these newer versions of these libraries got released, the government of Flanders also released a third version of their webcomponents which works with these newer versions. The needed configuration has already been set up, so that you can start using these components immediately. The libraries are

@@ -124,10 +124,10 @@ const shaclFile = ref<CustomFile | null>(null)
 //   'https://data.vlaanderen.be/doc/applicatieprofiel/lokale-economie/ontwerpstandaard/2024-01-17/shacl/lokale-economie-ap-SHACL.ttl',
 // )
 const shaclURL = ref<string>('')
-// const apURL = ref<string>(
-//   'https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl',
-// )
-const apURL = ref<string>('')
+const apURL = ref<string>(
+  'https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl',
+)
+// const apURL = ref<string>('')
 const tabsRef = ref()
 const apTabsRef = ref()
 const SHACL = ref<string | null>(null)
@@ -166,21 +166,24 @@ const isModDisabled = computed(() => {
   return !isFileValid || error.value || !isApValid
 })
 
-const validateFile = async (): Promise<object> => {
-  if (shaclFile.value?.status === 'error' || !shaclFile?.value) {
-    error.value = true
-    errorMessage.value = UPLOAD_ERROR_MESSAGE
-    return {}
-  }
-
-  return await readFileAsBase64(shaclFile?.value, selectedAP.value)
-}
-
 const validate = async () => {
   const isFileTabActive = tabsRef.value?.activeTabIndex === 0
-  const validateFunction = isFileTabActive
-    ? validateFile
-    : async () => validateURL(shaclURL.value, selectedAP?.value, apURL.value)
+  const validateInput = async (isFile: boolean) => {
+    if (isFile && !shaclFile.value) {
+      throw new Error(
+        'shaclFile does not exist, please upload a file or provide a URL',
+      )
+    }
+
+    const value = isFile ? shaclFile.value : shaclURL.value
+    const type = isTabActive(apTabsRef) ? 'AP' : 'URL'
+
+    return isFile
+      ? validateFile(<CustomFile>value, selectedAP?.value, apURL.value, type)
+      : validateURL(<string>value, selectedAP?.value, apURL.value, type)
+  }
+
+  const validateFunction = async () => validateInput(isFileTabActive)
   try {
     const body: object = await validateFunction()
 

@@ -35,10 +35,7 @@ export const convertReadableStreamToString = async (
   return result
 }
 
-export const readFileAsBase64 = (
-  file: CustomFile,
-  selectedAP: string,
-): Promise<object> => {
+export const readFileAsBase64 = (file: CustomFile): Promise<object> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -49,7 +46,6 @@ export const readFileAsBase64 = (
           contentSyntax: MIME_TYPES.LD_JSON,
           contentToValidate: base64,
           embeddingMethod: 'BASE64',
-          validationType: selectedAP,
         })
       } else {
         reject(new Error(FILE_READ_ERROR))
@@ -70,10 +66,9 @@ export const validateExternalURL = (
   externalURL: string,
 ): object => {
   return {
-    contentToValidate:
-      'https://www.itb.ec.europa.eu/files/samples/shacl/sample-invalid.ttl',
+    contentToValidate: content,
     validationType: 'core',
-    reportSyntax: 'text/turtle',
+    reportSyntax: MIME_TYPES.LD_JSON,
     externalRules: [
       {
         ruleSet: externalURL,
@@ -86,8 +81,9 @@ export const validateURL = (
   content: string,
   selectedAP: string,
   apURL: string,
+  type: 'AP' | 'URL',
 ): object => {
-  if (apURL) {
+  if (type === 'URL') {
     return validateExternalURL(content, apURL)
   }
   return {
@@ -97,12 +93,25 @@ export const validateURL = (
   }
 }
 
-export const validateFile = (base64: string, selectedAP: string): object => {
+export const validateFile = async (
+  content: CustomFile,
+  selectedAP: string,
+  apURL: string,
+  type: 'AP' | 'URL',
+): Promise<object> => {
+  let body: object = await readFileAsBase64(content)
+  if (type === 'URL') {
+    return {
+      ...body,
+      externalRules: [
+        {
+          ruleSet: apURL,
+        },
+      ],
+    }
+  }
   return {
-    contentSyntax: MIME_TYPES.LD_JSON,
-    contentToValidate: base64,
-    embeddingMethod: 'BASE64',
+    ...body,
     validationType: selectedAP,
-    reportSyntax: MIME_TYPES.RDF_XML,
   }
 }

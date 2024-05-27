@@ -1,30 +1,44 @@
-import { FILE_READ_ERROR, MIME_TYPES, NamedNode } from "~/constants/constants";
-import type { CustomFile } from "~/types/customFile";
-import type * as RDF from '@rdfjs/types';
+import { FILE_READ_ERROR, MIME_TYPES } from '~/constants/constants'
+import type { CustomFile } from '~/types/customFile'
 import { DataFactory } from 'rdf-data-factory'
-import type { SHACLValidationResult } from "~/types/schaclValidationResult";
 
 const df: DataFactory = new DataFactory()
 
-export const convertReadableStreamToString = async (stream: ReadableStream): Promise<string> => {
-  const reader = stream.getReader();
-  let result = '';
-  const decoder = new TextDecoder('utf-8');
+export const sendValidationRequest = async (body: object) => {
+  const result: Response = await fetch(import.meta.env.VITE_VALIDATOR_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': MIME_TYPES.APPLICATION_JSON,
+    },
+    body: JSON.stringify(body),
+  })
+  return result
+}
+
+export const convertReadableStreamToString = async (
+  stream: ReadableStream,
+): Promise<string> => {
+  const reader = stream.getReader()
+  let result = ''
+  const decoder = new TextDecoder('utf-8')
 
   while (true) {
-    const { value, done } = await reader.read();
+    const { value, done } = await reader.read()
 
     if (done) {
-      break;
+      break
     }
 
-    result += decoder.decode(value);
+    result += decoder.decode(value)
   }
 
-  return result;
-};
+  return result
+}
 
-export const readFileAsBase64 = (file: CustomFile, selectedAP: string): Promise<object> => {
+export const readFileAsBase64 = (
+  file: CustomFile,
+  selectedAP: string,
+): Promise<object> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -32,7 +46,7 @@ export const readFileAsBase64 = (file: CustomFile, selectedAP: string): Promise<
       if (typeof data === 'string') {
         const base64 = data.substring(data.indexOf(',') + 1)
         resolve({
-          contentSyntax: "text/turtle",
+          contentSyntax: MIME_TYPES.LD_JSON,
           contentToValidate: base64,
           embeddingMethod: 'BASE64',
           validationType: selectedAP,
@@ -51,7 +65,31 @@ export const readFileAsBase64 = (file: CustomFile, selectedAP: string): Promise<
   })
 }
 
-export const validateURL = (content: string, selectedAP: string): object => {
+export const validateExternalURL = (
+  content: string,
+  externalURL: string,
+): object => {
+  return {
+    contentToValidate:
+      'https://www.itb.ec.europa.eu/files/samples/shacl/sample-invalid.ttl',
+    validationType: 'core',
+    reportSyntax: 'text/turtle',
+    externalRules: [
+      {
+        ruleSet: externalURL,
+      },
+    ],
+  }
+}
+
+export const validateURL = (
+  content: string,
+  selectedAP: string,
+  apURL: string,
+): object => {
+  if (apURL) {
+    return validateExternalURL(content, apURL)
+  }
   return {
     contentToValidate: content,
     validationType: selectedAP,
@@ -61,7 +99,7 @@ export const validateURL = (content: string, selectedAP: string): object => {
 
 export const validateFile = (base64: string, selectedAP: string): object => {
   return {
-    contentSyntax: "text/turtle",
+    contentSyntax: MIME_TYPES.LD_JSON,
     contentToValidate: base64,
     embeddingMethod: 'BASE64',
     validationType: selectedAP,

@@ -38,15 +38,39 @@
         <vl-column width="12" width-s="12">
           <vl-typography>
             <h4>Applicatieprofiel</h4>
-            <vl-select v-model="selectedAP" mod-block placeholderText="Kies een applicatieprofiel...">
-              <option
-                v-for="ap in APPLICATION_PROFILES"
-                :value="ap.toLowerCase()"
-              >
-                {{ ap?.replace('_', ' ') }}
-              </option>
-            </vl-select>
           </vl-typography>
+          <vl-tabs :hash-change="false" ref="apTabsRef">
+            <vl-tab id="file" label="Kies een bestand">
+              <vl-form-message-label for="AP">
+                Selecteer een applicatieprofiel
+              </vl-form-message-label>
+              <vl-select
+                id="AP"
+                v-model="selectedAP"
+                mod-block
+                placeholderText="Kies een applicatieprofiel..."
+              >
+                <option
+                  v-for="ap in APPLICATION_PROFILES"
+                  :value="ap.toLowerCase()"
+                >
+                  {{ ap?.replace('_', ' ') }}
+                </option>
+              </vl-select>
+            </vl-tab>
+            <vl-tab id="url" label="Voorzie een URL">
+              <vl-form-message-label for="apURL">
+                Voorzie een URL naar een SHACL-bestand
+              </vl-form-message-label>
+              <vl-input-field
+                id="apURL"
+                name="apURL"
+                mod-block
+                placeholder="https://example.com/SHACL.ttl"
+                v-model="apURL"
+              />
+            </vl-tab>
+          </vl-tabs>
         </vl-column>
         <vl-column width="12" width-s="12" v-if="errorMessage">
           <vl-alert icon="warning" title="Fout!" mod-error>
@@ -87,18 +111,25 @@ import {
   API_ERROR_MESSAGE,
   UPLOAD_ERROR_MESSAGE,
   APPLICATION_PROFILES,
-  MIME_TYPES,
 } from '~/constants/constants'
 import type { CustomFile } from '~/types/customFile'
-import { validateURL } from '~/utils/utils'
 
 const error = ref(false)
 const errorMessage = ref('')
 const requestBody = ref()
-const selectedAP = ref('')
+// const selectedAP = ref('')
+const selectedAP = ref('persoon_basis')
 const shaclFile = ref<CustomFile | null>(null)
+// const shaclURL = ref<string>(
+//   'https://data.vlaanderen.be/doc/applicatieprofiel/lokale-economie/ontwerpstandaard/2024-01-17/shacl/lokale-economie-ap-SHACL.ttl',
+// )
 const shaclURL = ref<string>('')
+// const apURL = ref<string>(
+//   'https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl',
+// )
+const apURL = ref<string>('')
 const tabsRef = ref()
+const apTabsRef = ref()
 const SHACL = ref<string | null>(null)
 
 const onAdd = (file: CustomFile) => {
@@ -120,11 +151,19 @@ const resetErrors = () => {
 const onError = () => {
   error.value = true
 }
+const isTabActive = (tabRef: Ref) => tabRef.value?.activeTabIndex === 0
+
+const isValid = (isTabActive: boolean, value1: Ref, value2: Ref) =>
+  isTabActive ? value1.value : value2.value
 
 const isModDisabled = computed(() => {
-  const isFileTabActive = tabsRef.value?.activeTabIndex === 0
-  const isFileValid = isFileTabActive ? shaclFile.value : shaclURL.value
-  return !isFileValid || error.value || !selectedAP.value
+  const isApTabActive = isTabActive(apTabsRef)
+  const isFileTabActive = isTabActive(tabsRef)
+
+  const isApValid = isValid(isApTabActive, selectedAP, apURL)
+  const isFileValid = isValid(isFileTabActive, shaclFile, shaclURL)
+
+  return !isFileValid || error.value || !isApValid
 })
 
 const validateFile = async (): Promise<object> => {
@@ -141,21 +180,11 @@ const validate = async () => {
   const isFileTabActive = tabsRef.value?.activeTabIndex === 0
   const validateFunction = isFileTabActive
     ? validateFile
-    : async () => validateURL(shaclURL.value, selectedAP?.value)
+    : async () => validateURL(shaclURL.value, selectedAP?.value, apURL.value)
   try {
     const body: object = await validateFunction()
 
-    const result: Response = await fetch(
-      import.meta.env.VITE_VALIDATOR_API_URL,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': MIME_TYPES.APPLICATION_JSON,
-        },
-        body: JSON.stringify(body),
-      },
-    )
-
+    const result: Response = await sendValidationRequest(body)
     if (!result?.body) {
       throw new Error(API_ERROR_MESSAGE)
     }

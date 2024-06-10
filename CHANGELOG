@@ -1,3 +1,5 @@
 2.0.0 Nuxt 3.0 in combination with webcomponents version 3
 
 2.1.0 Added frontend and backend into one project
+
+2.2.0 Linked config of the backend to a docker volume

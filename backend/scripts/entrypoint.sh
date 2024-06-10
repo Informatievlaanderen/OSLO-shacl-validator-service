@@ -1,14 +1,9 @@
 #!/bin/sh
 
-echo "running"
-# Check if the directory is empty
-if [ -z "$(ls -A /backend-resources)" ]; then
-    echo "Directory is empty. Cloning the repository."
-    git clone https://github.com/yourusername/yourrepository.git /backend-resources
-else
-    echo "Directory is not empty. Pulling latest changes."
-    cd /backend-resources
-    git pull
-fi
-# Execute the main command
-exec "$@"
+# Ensure /shacl-validator-config directory exists
+mkdir -p /shacl-validator-config/applicatieprofielen
+
+# Fetch the config.properties file and overwrite any existing data
+echo "Downloading and overwriting config.properties..."
+curl https://raw.githubusercontent.com/Informatievlaanderen/OSLO-shacl-validator-service/config/config.properties -o /shacl-validator-config/applicatieprofielen/config.properties
+echo shacl-validator-config/applicatieprofielen/config.properties

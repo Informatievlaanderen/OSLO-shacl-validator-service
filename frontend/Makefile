@@ -1,5 +1,4 @@
--include .env
-export
+include .env
 
 VERSION := $(shell cat ../VERSION)
 # PUBLISHED is a file that contains the docker image to publish to. If it doesn't exist, use the default DOCKER_IMAGE which is an enviorment variable in CI

@@ -8,10 +8,11 @@ export const sendValidationRequest = async (body: object) => {
   const result: Response = await fetch(import.meta.env.VITE_VALIDATOR_API_URL, {
     method: 'POST',
     headers: {
-      'Content-Type': MIME_TYPES.APPLICATION_JSON,
+      'Content-Type': MIME_TYPES.LD_JSON,
     },
     body: JSON.stringify(body),
   })
+  console.log(result)
   return result
 }
 
@@ -77,15 +78,7 @@ export const validateExternalURL = (
   }
 }
 
-export const validateURL = (
-  content: string,
-  selectedAP: string,
-  apURL: string,
-  type: 'AP' | 'URL',
-): object => {
-  if (type === 'URL') {
-    return validateExternalURL(content, apURL)
-  }
+export const validateURL = (content: string, selectedAP: string): object => {
   return {
     contentToValidate: content,
     validationType: selectedAP,
@@ -96,20 +89,8 @@ export const validateURL = (
 export const validateFile = async (
   content: CustomFile,
   selectedAP: string,
-  apURL: string,
-  type: 'AP' | 'URL',
 ): Promise<object> => {
   let body: object = await readFileAsBase64(content)
-  if (type === 'URL') {
-    return {
-      ...body,
-      externalRules: [
-        {
-          ruleSet: apURL,
-        },
-      ],
-    }
-  }
   return {
     ...body,
     validationType: selectedAP,

@@ -39,38 +39,22 @@
           <vl-typography>
             <h4>Applicatieprofiel</h4>
           </vl-typography>
-          <vl-tabs :hash-change="false" ref="apTabsRef">
-            <vl-tab id="file" label="Kies een bestand">
-              <vl-form-message-label for="AP">
-                Selecteer een applicatieprofiel
-              </vl-form-message-label>
-              <vl-select
-                id="AP"
-                v-model="selectedAP"
-                mod-block
-                placeholderText="Kies een applicatieprofiel..."
-              >
-                <option
-                  v-for="ap in APPLICATION_PROFILES"
-                  :value="ap.toLowerCase()"
-                >
-                  {{ ap?.replace('_', ' ') }}
-                </option>
-              </vl-select>
-            </vl-tab>
-            <vl-tab id="url" label="Voorzie een URL">
-              <vl-form-message-label for="apURL">
-                Voorzie een URL naar een SHACL-bestand
-              </vl-form-message-label>
-              <vl-input-field
-                id="apURL"
-                name="apURL"
-                mod-block
-                placeholder="https://example.com/SHACL.ttl"
-                v-model="apURL"
-              />
-            </vl-tab>
-          </vl-tabs>
+          <vl-form-message-label for="AP">
+            Selecteer een applicatieprofiel
+          </vl-form-message-label>
+          <vl-select
+            id="AP"
+            v-model="selectedAP"
+            mod-block
+            placeholderText="Kies een applicatieprofiel..."
+          >
+            <option
+              v-for="ap in APPLICATION_PROFILES"
+              :value="ap.toLowerCase()"
+            >
+              {{ ap?.replace('_', ' ') }}
+            </option>
+          </vl-select>
         </vl-column>
         <vl-column width="12" width-s="12" v-if="errorMessage">
           <vl-alert icon="warning" title="Fout!" mod-error>
@@ -107,29 +91,16 @@
 </template>
 
 <script setup lang="ts">
-import {
-  API_ERROR_MESSAGE,
-  UPLOAD_ERROR_MESSAGE,
-  APPLICATION_PROFILES,
-} from '~/constants/constants'
+import { API_ERROR_MESSAGE, APPLICATION_PROFILES } from '~/constants/constants'
 import type { CustomFile } from '~/types/customFile'
 
 const error = ref(false)
 const errorMessage = ref('')
 const requestBody = ref()
-// const selectedAP = ref('')
 const selectedAP = ref('persoon_basis')
 const shaclFile = ref<CustomFile | null>(null)
-// const shaclURL = ref<string>(
-//   'https://data.vlaanderen.be/doc/applicatieprofiel/lokale-economie/ontwerpstandaard/2024-01-17/shacl/lokale-economie-ap-SHACL.ttl',
-// )
-const shaclURL = ref<string>('')
-const apURL = ref<string>(
-  'https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl',
-)
-// const apURL = ref<string>('')
+const shaclURL = ref<string>('https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl')
 const tabsRef = ref()
-const apTabsRef = ref()
 const SHACL = ref<string | null>(null)
 
 const onAdd = (file: CustomFile) => {
@@ -151,19 +122,11 @@ const resetErrors = () => {
 const onError = () => {
   error.value = true
 }
-const isTabActive = (tabRef: Ref) => tabRef.value?.activeTabIndex === 0
-
-const isValid = (isTabActive: boolean, value1: Ref, value2: Ref) =>
-  isTabActive ? value1.value : value2.value
 
 const isModDisabled = computed(() => {
-  const isApTabActive = isTabActive(apTabsRef)
-  const isFileTabActive = isTabActive(tabsRef)
+  const isValid = shaclFile.value || shaclURL.value
 
-  const isApValid = isValid(isApTabActive, selectedAP, apURL)
-  const isFileValid = isValid(isFileTabActive, shaclFile, shaclURL)
-
-  return !isFileValid || error.value || !isApValid
+  return !isValid || error.value
 })
 
 const validate = async () => {
@@ -176,11 +139,12 @@ const validate = async () => {
     }
 
     const value = isFile ? shaclFile.value : shaclURL.value
-    const type = isTabActive(apTabsRef) ? 'AP' : 'URL'
+
+    console.log(isFile)
 
     return isFile
-      ? validateFile(<CustomFile>value, selectedAP?.value, apURL.value, type)
-      : validateURL(<string>value, selectedAP?.value, apURL.value, type)
+      ? validateFile(<CustomFile>value, selectedAP?.value)
+      : validateURL(<string>value, selectedAP?.value)
   }
 
   const validateFunction = async () => validateInput(isFileTabActive)
@@ -204,6 +168,7 @@ const validate = async () => {
     // Store the SHACL data either as base64 or as a URL
     SHACL.value = data
   } catch (err: unknown) {
+    console.log(err)
     errorMessage.value = err instanceof Error ? err.message : API_ERROR_MESSAGE
   }
 }

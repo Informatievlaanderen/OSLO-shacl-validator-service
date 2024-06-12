@@ -95,7 +95,7 @@ const errorMessage = ref<string>('')
 const parseResult = (rdfXML: string) => {
   try {
     const stream = new Readable()
-    stream.push(rdfXML)
+    stream.push(rdfXML) // Push the rdfXML into the stream
     stream.push(null) // Indicates end of data
 
     const myParser = new RdfXmlParser()
@@ -103,18 +103,22 @@ const parseResult = (rdfXML: string) => {
     stream
       .pipe(myParser)
       .on('data', processQuad)
-      .on('error', console.error)
+      .on('error', (err) => handleError(err))
       .on('end', () => {
         // reset error message since succesfully parsed
         errorMessage.value = ''
         // call change format to display the result
         changeFormat()
       })
-  } catch (err) {
-    console.log(err)
+  } catch (err: unknown) {
     errorMessage.value = err instanceof Error ? err.message : VALIDATION_ERROR
   }
 }
+
+const handleError = (err: unknown) => {
+  errorMessage.value = err instanceof Error ? err.message : VALIDATION_ERROR
+}
+
 const processQuad = (quad: RDF.Quad) => {
   const subject = quad.subject.value
   const predicate = quad.predicate.value

@@ -1,6 +1,14 @@
 # OSLO-shacl-validator-service
 
-This repository should be used as the starting point for every frontend-related project that gets build for the government of Flanders. This project is built using [Nuxt 3.x](https://nuxt.com/) and [Vue 3.x](https://vuejs.org/). Ever since these newer versions of these libraries got released, the government of Flanders also released a third version of their webcomponents which works with these newer versions. The needed configuration has already been set up, so that you can start using these components immediately. The libraries are
+This project contains a frontend and a backend part. The frontend is built using Nuxt 3.x and Vue 3.x, while the backend is built using Express.js. The frontend is used to validate SHACL files against a given RDF file. The backend is used to validate the SHACL files against the RDF file.
+
+## BACKEND
+
+Please refer to the [backend README](./backend/README.md) for more information about the backend part of this project.
+
+## FRONTEND
+
+This project is built using [Nuxt 3.x](https://nuxt.com/) and [Vue 3.x](https://vuejs.org/). Ever since these newer versions of these libraries got released, the government of Flanders also released a third version of their webcomponents which works with these newer versions. The needed configuration has already been set up, so that you can start using these components immediately. The libraries are
 
 ```json
 "@govflanders/vl-ui-design-system-style"
@@ -39,17 +47,6 @@ More information about the usage of this directory in [the documentation](https:
 
 The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
 
-### `content`
-
-The content directory serves as the file-based CMS of the whole project. We use a library called `nuxt/content` that allows us to import all the content of our website into components/pages across the project.
-More information about the usage of this directory in [the documentation](https://content.nuxtjs.org/).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxt.com/docs/guide/directory-structure/layouts#layouts-directory).
-
 ### `pages`
 
 This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
@@ -71,7 +68,7 @@ The css directory contains your custom imported css or Sass files. We use this t
 Custom directory that contains our customly defined typescript config files. Can be used shorthandedly in your code:
 
 ```typescript
-import type { NavigationMenu } from '~/types/navigationMenu'
+import type { NavigationMenu } from "~/types/navigationMenu";
 ```
 
 ## Special files
@@ -101,7 +98,7 @@ This file serves as a secret file to contain all our API-keys, tokens,... that w
 Since Vue `3.x`, nuxt uses [Vite](https://vitejs.dev/guide/why.html) as its preferred bundler over [Webpack](https://webpack.js.org/). This means that environment variables are passed in a different manner from the backend to the frontend. You can access the environment variables by using
 
 ```js
-import.meta.env.VITE_ENVIRONMENT
+import.meta.env.VITE_ENVIRONMENT;
 ```
 
 > Only variables using the `VITE_` prefix are passed to the frontend. **Never** pass secret variables, such as API-tokens to the frontend as these will be up for grabs

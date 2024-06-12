@@ -38,15 +38,20 @@
         <vl-column width="12" width-s="12">
           <vl-typography>
             <h4>Applicatieprofiel</h4>
-            <vl-select v-model="selectedAP" mod-block placeholderText="Kies een applicatieprofiel...">
-              <option
-                v-for="ap in APPLICATION_PROFILES"
-                :value="ap.toLowerCase()"
-              >
-                {{ ap?.replace('_', ' ') }}
-              </option>
-            </vl-select>
           </vl-typography>
+          <vl-form-message-label for="AP">
+            Selecteer een applicatieprofiel
+          </vl-form-message-label>
+          <vl-select
+            id="AP"
+            v-model="selectedAP"
+            mod-block
+            placeholderText="Kies een applicatieprofiel..."
+          >
+            <option v-for="ap in data?.APs" :value="ap.toLowerCase()">
+              {{ ap?.replace('_', ' ') }}
+            </option>
+          </vl-select>
         </vl-column>
         <vl-column width="12" width-s="12" v-if="errorMessage">
           <vl-alert icon="warning" title="Fout!" mod-error>
@@ -83,23 +88,26 @@
 </template>
 
 <script setup lang="ts">
-import {
-  API_ERROR_MESSAGE,
-  UPLOAD_ERROR_MESSAGE,
-  APPLICATION_PROFILES,
-  MIME_TYPES,
-} from '~/constants/constants'
+import { API_ERROR_MESSAGE } from '~/constants/constants'
 import type { CustomFile } from '~/types/customFile'
-import { validateURL } from '~/utils/utils'
 
 const error = ref(false)
 const errorMessage = ref('')
 const requestBody = ref()
-const selectedAP = ref('')
+const selectedAP = ref('persoon_basis')
 const shaclFile = ref<CustomFile | null>(null)
-const shaclURL = ref<string>('')
+const shaclURL = ref<string>(
+  'https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl',
+)
 const tabsRef = ref()
 const SHACL = ref<string | null>(null)
+
+const { data } = await useAsyncData('data', async () => {
+  const APs = await fetchAPs()
+  return {
+    APs,
+  }
+})
 
 const onAdd = (file: CustomFile) => {
   error.value = file.status === 'error'
@@ -122,40 +130,34 @@ const onError = () => {
 }
 
 const isModDisabled = computed(() => {
-  const isFileTabActive = tabsRef.value?.activeTabIndex === 0
-  const isFileValid = isFileTabActive ? shaclFile.value : shaclURL.value
-  return !isFileValid || error.value || !selectedAP.value
+  const isValid = shaclFile.value || shaclURL.value
+
+  return !isValid || error.value
 })
-
-const validateFile = async (): Promise<object> => {
-  if (shaclFile.value?.status === 'error' || !shaclFile?.value) {
-    error.value = true
-    errorMessage.value = UPLOAD_ERROR_MESSAGE
-    return {}
-  }
-
-  return await readFileAsBase64(shaclFile?.value, selectedAP.value)
-}
 
 const validate = async () => {
   const isFileTabActive = tabsRef.value?.activeTabIndex === 0
-  const validateFunction = isFileTabActive
-    ? validateFile
-    : async () => validateURL(shaclURL.value, selectedAP?.value)
+  const validateInput = async (isFile: boolean) => {
+    if (isFile && !shaclFile.value) {
+      throw new Error(
+        'shaclFile does not exist, please upload a file or provide a URL',
+      )
+    }
+
+    const value = isFile ? shaclFile.value : shaclURL.value
+
+    console.log(isFile)
+
+    return isFile
+      ? validateFile(<CustomFile>value, selectedAP?.value)
+      : validateURL(<string>value, selectedAP?.value)
+  }
+
+  const validateFunction = async () => validateInput(isFileTabActive)
   try {
     const body: object = await validateFunction()
 
-    const result: Response = await fetch(
-      import.meta.env.VITE_VALIDATOR_API_URL,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': MIME_TYPES.APPLICATION_JSON,
-        },
-        body: JSON.stringify(body),
-      },
-    )
-
+    const result: Response = await sendValidationRequest(body)
     if (!result?.body) {
       throw new Error(API_ERROR_MESSAGE)
     }
@@ -172,6 +174,7 @@ const validate = async () => {
     // Store the SHACL data either as base64 or as a URL
     SHACL.value = data
   } catch (err: unknown) {
+    console.log(err)
     errorMessage.value = err instanceof Error ? err.message : API_ERROR_MESSAGE
   }
 }

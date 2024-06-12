@@ -23,6 +23,9 @@ exec:
 run:
 	docker run -d --rm --name oslo-shacl-validator-service-frontend -p 3000:3000 informatievlaanderen/oslo-shacl-validator-service-frontend:${VERSION}
 
+run-hub:
+	docker run -d --rm --name oslo-shacl-validator-service-frontend -p 3000:3000 terraformtestcontainerregistry.azurecr.io/oslo2/oslo-shacl-validator-service-frontend:${VERSION}
+
 
 stop:
 	docker stop oslo-shacl-validator-service-frontend

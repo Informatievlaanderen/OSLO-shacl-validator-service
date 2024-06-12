@@ -3,3 +3,5 @@
 2.1.0 Added frontend and backend into one project
 
 2.2.0 Linked config of the backend to a docker volume
+
+2.3.0 Link the list of APs to the API from the backend

@@ -4,17 +4,7 @@ This project contains a frontend and a backend part. The frontend is built using
 
 ## BACKEND
 
-### `Dockerfile`
-
-This file is used to build a Docker image for the backend service. It contains instructions on how to set up the environment and which commands to run.
-
-### `Makefile`
-
-This file contains a set of tasks for building and running the backend service. It includes tasks for building the Docker image, running the Docker container, and cleaning up the Docker environment.
-
-### `resources/applicatieprofielen/`
-
-This directory contains application profiles. These are used in the validation of SHACL files against the RDF file. The `config.properties` file contains the configuration for the actual application profiles and should be extended with new application profiles if need be.
+Please refer to the [backend README](./backend/README.md) for more information about the backend part of this project.
 
 ## FRONTEND
 

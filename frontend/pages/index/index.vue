@@ -48,10 +48,7 @@
             mod-block
             placeholderText="Kies een applicatieprofiel..."
           >
-            <option
-              v-for="ap in APPLICATION_PROFILES"
-              :value="ap.toLowerCase()"
-            >
+            <option v-for="ap in data?.APs" :value="ap.toLowerCase()">
               {{ ap?.replace('_', ' ') }}
             </option>
           </vl-select>
@@ -91,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { API_ERROR_MESSAGE, APPLICATION_PROFILES } from '~/constants/constants'
+import { API_ERROR_MESSAGE } from '~/constants/constants'
 import type { CustomFile } from '~/types/customFile'
 
 const error = ref(false)
@@ -99,9 +96,18 @@ const errorMessage = ref('')
 const requestBody = ref()
 const selectedAP = ref('persoon_basis')
 const shaclFile = ref<CustomFile | null>(null)
-const shaclURL = ref<string>('https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl')
+const shaclURL = ref<string>(
+  'https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl',
+)
 const tabsRef = ref()
 const SHACL = ref<string | null>(null)
+
+const { data } = await useAsyncData('data', async () => {
+  const APs = await fetchAPs()
+  return {
+    APs,
+  }
+})
 
 const onAdd = (file: CustomFile) => {
   error.value = file.status === 'error'

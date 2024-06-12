@@ -4,6 +4,20 @@ import { DataFactory } from 'rdf-data-factory'
 
 const df: DataFactory = new DataFactory()
 
+export const fetchAPs = async () => {
+  try {
+    const result: Response = await fetch(import.meta.env.VITE_AP_LIST_URL)
+    const data = await result.json()
+    const types = data.validationTypes.map(
+      (val: { type: string; description: string }) => val.type,
+    )
+    console.log(data)
+    return types
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export const sendValidationRequest = async (body: object) => {
   const result: Response = await fetch(import.meta.env.VITE_VALIDATOR_API_URL, {
     method: 'POST',
@@ -12,7 +26,6 @@ export const sendValidationRequest = async (body: object) => {
     },
     body: JSON.stringify(body),
   })
-  console.log(result)
   return result
 }
 

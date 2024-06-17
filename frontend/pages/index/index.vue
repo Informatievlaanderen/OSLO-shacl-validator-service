@@ -42,7 +42,24 @@
           <vl-form-message-label for="AP">
             Selecteer een applicatieprofiel
           </vl-form-message-label>
-          <vl-select
+          <vl-multiselect
+            v-model="selectedAP"
+            :options="data?.APs"
+            :custom-label="(ap: string) => ap?.replace('_', ' ')"
+            :id="'multiselect-5'"
+            :mod-multiple="false"
+          >
+            <option v-for="ap in data?.APs" :value="ap.toLowerCase()">
+              {{ ap?.replace('_', ' ') }}
+            </option>
+            <template v-slot:noResult>
+              <span>Geen applicatieprofielen gevonden...</span>
+            </template>
+            <template v-slot:noOptions>
+              <span>Geen opties beschikbaar!</span>
+            </template>
+          </vl-multiselect>
+          <!-- <vl-select
             id="AP"
             v-model="selectedAP"
             mod-block
@@ -51,7 +68,7 @@
             <option v-for="ap in data?.APs" :value="ap.toLowerCase()">
               {{ ap?.replace('_', ' ') }}
             </option>
-          </vl-select>
+          </vl-select> -->
         </vl-column>
         <vl-column width="12" width-s="12" v-if="errorMessage">
           <vl-alert icon="warning" title="Fout!" mod-error>
@@ -94,10 +111,12 @@ import type { CustomFile } from '~/types/customFile'
 const error = ref(false)
 const errorMessage = ref('')
 const requestBody = ref()
-const selectedAP = ref('persoon_basis')
+// const selectedAP = ref('persoon_basis')
+const selectedAP = ref('')
 const shaclFile = ref<CustomFile | null>(null)
 const shaclURL = ref<string>(
-  'https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl',
+  // 'https://data.vlaanderen.be/doc/applicatieprofiel/persoon-basis/shacl/persoon-basis-SHACL.ttl',
+  '',
 )
 const tabsRef = ref()
 const SHACL = ref<string | null>(null)

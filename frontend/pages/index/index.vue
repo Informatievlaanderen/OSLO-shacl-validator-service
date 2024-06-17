@@ -48,6 +48,7 @@
             :custom-label="(ap: string) => ap?.replace('_', ' ')"
             :id="'multiselect-5'"
             :mod-multiple="false"
+            placeholder="Selecteer een applicatieprofiel"
           >
             <option v-for="ap in data?.APs" :value="ap.toLowerCase()">
               {{ ap?.replace('_', ' ') }}

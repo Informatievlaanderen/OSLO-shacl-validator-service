@@ -22,3 +22,15 @@ docker run --name $TEMP_CONTAINER -v $VOLUME_NAME:/tmp alpine /bin/sh -c "apk ad
 docker rm $TEMP_CONTAINER
 
 echo "config.properties has been fetched and stored in the Docker volume '$VOLUME_NAME' under 'resources/applicatieprofielen/'."
+
+# RESTART ALL SERVICES USING THIS DOCKER VOLUME
+
+# Define an array of service names
+SERVICE_NAMES=("oslo_shacl-validator-eu-backend")
+
+# Loop through the service names and restart each
+for SERVICE_NAME in "${SERVICE_NAMES[@]}"; do
+    echo "Restarting Docker service: $SERVICE_NAME..."
+    docker service update --force $SERVICE_NAME
+    echo "Docker service '$SERVICE_NAME' has been restarted."
+done

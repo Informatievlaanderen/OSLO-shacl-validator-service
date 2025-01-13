@@ -5,7 +5,7 @@ The `/backend` directory contains the backend part of the OSLO SHACL Validator S
 
 ### Dockerfile
 
-nside the `Dockerfile` you can find the instructions on how to build the Docker image for the backend service. The main difference here is the use of a Docker volume called `shacl-validator-config`. This volume should contain the `config.properties` for this backend to run. The structure of the Docker volume should be as follows:
+Inside the `Dockerfile` you can find the instructions on how to build the Docker image for the backend service. The main difference here is the use of a Docker volume called `shacl-validator-config`. This volume should contain the `config.properties` for this backend to run. The structure of the Docker volume should be as follows:
 
 ```
 resources  

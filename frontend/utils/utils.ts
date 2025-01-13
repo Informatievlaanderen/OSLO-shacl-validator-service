@@ -19,14 +19,21 @@ export const fetchAPs = async () => {
 }
 
 export const sendValidationRequest = async (body: object) => {
-  const result: Response = await fetch(import.meta.env.VITE_VALIDATOR_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': MIME_TYPES.LD_JSON,
-    },
-    body: JSON.stringify(body),
-  })
-  return result
+  try {
+    const result: Response = await fetch(
+      import.meta.env.VITE_VALIDATOR_API_URL,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': MIME_TYPES.LD_JSON,
+        },
+        body: JSON.stringify(body),
+      },
+    )
+    return result
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 export const convertReadableStreamToString = async (

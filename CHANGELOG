@@ -7,3 +7,5 @@
 2.3.0 Link the list of APs to the API from the backend
 
 2.4.0 Use a searchable multiselect for the APs
+
+2.4.1 try/catch around api call

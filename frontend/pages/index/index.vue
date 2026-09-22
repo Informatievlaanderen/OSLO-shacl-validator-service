@@ -185,6 +185,10 @@ const validate = async () => {
     const data = await convertReadableStreamToString(result.body)
 
     if (!result.ok) {
+      // Detect HTML error pages (e.g. from CDN/proxy) and show a generic message
+      if (data?.trim().startsWith('<')) {
+        throw new Error(API_ERROR_MESSAGE)
+      }
       throw new Error(data ?? API_ERROR_MESSAGE)
     }
     // Reset any existing errors upon successful validation

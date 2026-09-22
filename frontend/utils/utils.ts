@@ -20,6 +20,9 @@ export const fetchAPs = async () => {
 
 export const sendValidationRequest = async (body: object) => {
   try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 120_000) // 2 min timeout
+
     const result: Response = await fetch(
       import.meta.env.VITE_VALIDATOR_API_URL,
       {
@@ -28,8 +31,10 @@ export const sendValidationRequest = async (body: object) => {
           'Content-Type': MIME_TYPES.LD_JSON,
         },
         body: JSON.stringify(body),
+        signal: controller.signal,
       },
     )
+    clearTimeout(timeout)
     return result
   } catch (error) {
     console.error(error)

@@ -1212,17 +1212,17 @@
 
 "@govflanders/vl-ui-design-system-style@^1.0.3":
   version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@govflanders/vl-ui-design-system-style/-/vl-ui-design-system-style-1.0.3.tgz#5b3288870f7d30ad9bc8769e9cfbc00702da5bab"
+  resolved "https://registry.npmjs.org/@govflanders/vl-ui-design-system-style/-/vl-ui-design-system-style-1.0.3.tgz#5b3288870f7d30ad9bc8769e9cfbc00702da5bab"
   integrity sha512-37TspbXuSZIh47KSWWopz0IJjhjt8PQwVzUw/Fx6FvvyJS4ftySGtdapi86ZoUJGjXobzZblcLGEKtZPWDPvwg==
 
 "@govflanders/vl-ui-design-system-vue3@^1.0.2-alpha.6":
   version "1.0.2-alpha.6"
-  resolved "https://registry.yarnpkg.com/@govflanders/vl-ui-design-system-vue3/-/vl-ui-design-system-vue3-1.0.2-alpha.6.tgz#cd00572735224638a6a99476826abc607e430d0c"
+  resolved "https://registry.npmjs.org/@govflanders/vl-ui-design-system-vue3/-/vl-ui-design-system-vue3-1.0.2-alpha.6.tgz#cd00572735224638a6a99476826abc607e430d0c"
   integrity sha512-D18XQ+mkUpPKmItQPgkmXp6XLusfMl/uX/BnIZNdIfGu0Wqg4OoAFWc3W8I+PoSyvRkb+uUinzllTWx7Qp9UrQ==
 
 "@govflanders/vl-widget-polyfill@^1.4.1":
   version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@govflanders/vl-widget-polyfill/-/vl-widget-polyfill-1.4.1.tgz#fbd0237a24d1f4281cb663523500908005d6d8c3"
+  resolved "https://registry.npmjs.org/@govflanders/vl-widget-polyfill/-/vl-widget-polyfill-1.4.1.tgz#fbd0237a24d1f4281cb663523500908005d6d8c3"
   integrity sha512-SqQRN7j8LbK3L+2yLdHF2EUVIIK9eO4Zoo+3I+yJBIMnC6MTyY8V34KMOiLPU/WNET1tmizFoQE2vhQabJpFhw==
 
 "@humanwhocodes/config-array@^0.11.14":

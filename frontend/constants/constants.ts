@@ -11,7 +11,6 @@ export const APPLICATION_PROFILES: string[] = [
   'Notificatie_basis',
   'Organisatie_basis',
   'Persoon_basis',
-  'Subsidieregister',
   'Contactvoorkeuren',
   'Dienst_Transactiemodel',
   'Vlaamse_codex',
